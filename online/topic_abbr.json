@@ -1,0 +1,15 @@
+{
+    "lcamera":"/davis/left/camera_info",
+    "levent":"/davis/left/events",
+    "limage":"/davis/left/image_raw",
+    "limu":"/davis/left/imu",
+    "revent":"/davis/right/events",
+    "rimu":"/davis/right/imu",
+    "point_cloud":"/velodyne_point_cloud",
+    "cust_imu":"/visensor/cust_imu",
+    "imu":"/visensor/imu",
+    "lcamera2":"/visensor/left/camera_info",
+    "limage2":"/visensor/left/image_raw",
+    "rcamera2":"/visensor/right/camera_info",
+    "rimage2":"/visensor/right/image_raw"
+}

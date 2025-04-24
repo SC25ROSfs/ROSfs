@@ -1,0 +1,11 @@
+{
+  "depth":       "/camera/depth/image_rect_raw",
+  "image1":      "/camera/infra1/image_rect_raw",
+  "image2":      "/camera/infra2/image_rect_raw",
+  "image1c":     "/camera/infra1/image_rect_raw/compressed",
+  "image2c":     "/camera/infra2/image_rect_raw/compressed",
+  "imu":         "/mavros/imu/data",
+  "pose":        "/vins_fusion/camera_pose",
+  "od":          "/vins_fusion/odometry",
+  "pc":          "/vins_fusion/point_cloud"
+}
