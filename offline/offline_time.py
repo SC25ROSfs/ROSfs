@@ -18,8 +18,9 @@ if __name__ == "__main__":
     
     def tr_query(topic:str,backend:str,start:int,end:int)->float:
         rosfs_bag = rosbag.Bag(backend,"rosfs")
+        cst = rosfs_bag.get_start_time()
         st = time.time()
-        for _,_,_ in rosfs_bag.read_messages(topic,start,end):
+        for _,_,_ in rosfs_bag.read_messages(topic,cst+start,cst+end):
             pass
         return time.time()-st
     
