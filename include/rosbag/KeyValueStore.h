@@ -347,6 +347,7 @@ public:
         auto root_node_block = get_node_block(get_header()->root_addr);
         get_leaf_block(key,&root_node_block,&ctx);
 
+        
         split(&ctx,key,value);
 
         // rw_latch_.unlock();

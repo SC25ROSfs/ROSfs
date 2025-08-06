@@ -81,9 +81,6 @@ public:
     void        decompress(CompressionType compression, uint8_t* dest, unsigned int dest_len, uint8_t* source, unsigned int source_len);
     void        swap(ChunkedFile& other);
 
-    void        flush(); 
-    void        fsync();
-
 private:
     ChunkedFile(const ChunkedFile&);
     ChunkedFile& operator=(const ChunkedFile&);

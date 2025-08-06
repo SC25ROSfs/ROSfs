@@ -79,21 +79,6 @@ void ChunkedFile::openReadWrite(string const& filename) { open(filename, "r+b");
 void ChunkedFile::openWrite    (string const& filename) { open(filename, "w+b");  }
 void ChunkedFile::openRead     (string const& filename) { open(filename, "rb");  }
 
-void ChunkedFile::flush() {
-    if (!file_)
-        throw BagIOException("flush() called on closed file");
-    if (::fflush(file_) != 0)
-        throw BagIOException("fflush failed");
-}
-
-void ChunkedFile::fsync() {
-    if (!file_)
-        throw BagIOException("fsync() called on closed file");
-    int fd = ::fileno(file_);
-    if (::fsync(fd) != 0)
-        throw BagIOException("fsync failed");
-}
-
 void ChunkedFile::open(string const& filename, string const& mode) {
     // Check if file is already open
     if (file_)
