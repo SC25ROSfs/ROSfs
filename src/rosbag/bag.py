@@ -652,7 +652,9 @@ class Bag(object):
                 md5sums.append(md5sum)
                 msg_defs.append(msg_def)
         
-            self._tm.batch_timekv_insert(topics,secs,nsecs,msg_types,md5sums,msg_defs,msgs,connection_headers,raw)  
+        self._tm.batch_timekv_insert(topics,secs,nsecs,msg_types,md5sums,msg_defs,msgs,connection_headers,raw)
+        return
+                
         
     
     def write(self, topic, msg, t=None, raw=False, connection_header=None):
@@ -701,6 +703,7 @@ class Bag(object):
                 # serialized_bytes = buffer.getvalue()
             
             sec,nsec = t.secs,t.nsecs
+            # print(f"msg_type:{msg_type},md5sum:{md5sum},msg_def:{msg_def}")
             self._tm.timekv_insert(topic,sec,nsec,msg_type,md5sum,msg_def,msg,connection_header)
             return
         
@@ -1448,23 +1451,6 @@ class Bag(object):
             if connection_filter and not connection_filter(c.topic, c.datatype, c.md5sum, c.msg_def, c.header):
                 continue
             yield c
-            
-    def get_connections(self, topics=None, connection_filter=None):
-        """
-        Yield the connections, optionally filtering by topic and/or connection information.
-        """
-        if topics:
-            if type(topics) is str:
-                topics = set([roslib.names.canonicalize_name(topics)])
-            else:
-                topics = set([roslib.names.canonicalize_name(t) for t in topics])
-
-        for c in self._connections.values():
-            if topics and c.topic not in topics and roslib.names.canonicalize_name(c.topic) not in topics:
-                continue
-            if connection_filter and not connection_filter(c.topic, c.datatype, c.md5sum, c.msg_def, c.header):
-                continue
-            yield c
 
     def _get_entries(self, connections=None, start_time=None, end_time=None):
         """
@@ -1585,6 +1571,7 @@ class Bag(object):
 
     # ROSfs only
     def _open_header(self, f, mode, allow_unindexed):
+        # print("BORA splited bag mode")
         self._mode = mode
         self._tm = tag_manager.TagManager(option=self._mode)
         self._tm.open(f)
@@ -2876,6 +2863,7 @@ class _BagReader200(_BagReader):
                     self._read_connection_index_records()
             else:
                 self.bag._chunks = [self.read_chunk_info_record()]
+                # print("BORA version 1, jump chunk info")
 
         except ROSBagEncryptNotSupportedException:
             raise
@@ -2919,7 +2907,7 @@ class _BagReader200(_BagReader):
                     f = open(entry.path, 'rb')
                     try:
                         while True:
-                            bag_message = self.read_message_data_record(f, raw, 0, return_connection_header)
+                            bag_message = self.read_message_data_record(f, raw, 0)
                             yield bag_message
                     except Exception as e:
                         pass
@@ -2931,6 +2919,7 @@ class _BagReader200(_BagReader):
                     # entries = self.bag._tm.time_query(ids, start_time.secs, start_time.nsecs, end_time.secs,end_time.nsecs)
                     entries = self.bag._tm.time_query(ids,start_time,end_time)
                 for entry in entries:
+                    # print(entry)
                     f = open(entry.path, 'rb')
                     try:
                         start_off, end_off = entry.time_range
@@ -2938,17 +2927,15 @@ class _BagReader200(_BagReader):
                             continue
                         f.seek(start_off)
                         while f.tell() <= end_off:
-                            try:
-                                bag_message = self.read_message_data_record(f, raw, 0, return_connection_header)
-                                yield bag_message
-                            except Exception as e:
-                                raise ROSBagException(f"error when reading time ranged data:{e}")
+                            bag_message = self.read_message_data_record(f, raw, 0)
+                            yield bag_message
                     except Exception as e:
-                        raise ROSBagException(f"error when reading time ranged data:{e}")
-                        # pass
+                        # print(f"exception happens when reading time ranged data:{e}")
+                        # raise ROSBagException(f"error when reading time ranged data:{e}")
+                        pass
     
     # ROSfs only
-    def read_message_data_record(self, f, raw, id, return_connection_header=False):
+    def read_message_data_record(self, f, raw, id):
         # Skip any CONNECTION records
         while True:
             header = _read_header(f)
@@ -2977,15 +2964,12 @@ class _BagReader200(_BagReader):
 
         # Deserialize the message
         if raw:
-            msg = data,connection_info
+            msg = connection_info.id, data
         else:
             msg = msg_type()
             msg.deserialize(data)
 
-        if return_connection_header:
-            return BagMessageWithConnectionHeader(connection_info.topic, msg, t, connection_info.header)
-        else:
-            return BagMessage(connection_info.topic, msg, t)
+        return BagMessage(connection_info.topic, msg, t)
 
     def read_file_header_record(self):
         self.bag._file_header_pos = self.bag._file.tell()

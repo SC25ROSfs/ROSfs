@@ -47,8 +47,6 @@ static PyObject *rosfs_timekv_query(PyObject *self, PyObject *args) {
         return NULL;
     }
 
-    // time_index.print_b_plus_tree();
-
     PyObject *result = PyDict_New();
     Py_ssize_t len = PyList_Size(tags_obj);
 
